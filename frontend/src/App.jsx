@@ -36,7 +36,17 @@ function App() {
           const res = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000'}/api/categories`);
           const data = await res.json();
           if (data.success) {
-             setCategories(data.categories);
+             // Mezclamos aleatoriamente TODAS las categorías que mande la BD
+             const shuffledCategories = data.categories.sort(() => 0.5 - Math.random());
+             // Limitamos a un máximo para que no se apriete infinito el diseño (ej. 10 columnas)
+             const selectedCategories = shuffledCategories.slice(0, 10);
+             
+             // Aseguramos que las preguntas estén ordenadas por puntos (200 a 1000)
+             selectedCategories.forEach(cat => {
+                 cat.questions.sort((a, b) => a.points - b.points);
+             });
+             
+             setCategories(selectedCategories);
              // Si el host se recarga, tratamos de restaurar las marcadas de sessionStorage
              const savedCats = sessionStorage.getItem('categoriesState');
              if (savedCats) {
